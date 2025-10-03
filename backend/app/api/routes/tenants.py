@@ -46,7 +46,21 @@ async def get_tenant(clerk_user_id: str):
     return tenant
 
 
-@router.patch("/{tenant_id}/state")
+@router.patch("/{tenant_id}/company", response_model=TenantResponse)  # Added this
+async def update_company_name(tenant_id: str, company_name: str):
+    """
+    Updates company name during onboarding.
+    Called from onboarding form in Next.js.
+    """
+    tenant = tenant_service.update_company_name(tenant_id, company_name)
+
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    return tenant
+
+
+@router.patch("/{tenant_id}/state", response_model=TenantResponse)
 async def update_tenant_state(tenant_id: str, state: str):
     """
     Updates tenant onboarding state.
