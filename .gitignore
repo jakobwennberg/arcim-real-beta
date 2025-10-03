@@ -9,8 +9,14 @@ backend/venv/
 backend/__pycache__/
 backend/*.pyc
 backend/.env
+backend/app/__pycache__/
+backend/app/**/__pycache__/
 
 # General
 .DS_Store
 *.log
-.p8
+*.p8
+*.pem
+*.key
+.env
+.env.local

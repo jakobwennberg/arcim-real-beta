@@ -7,6 +7,7 @@ class Settings(BaseSettings):
 
     # Clerk
     clerk_secret_key: str
+    clerk_webhook_secret: str
 
     # Snowflake
     snowflake_account: str
