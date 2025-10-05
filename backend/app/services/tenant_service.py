@@ -176,3 +176,32 @@ class TenantService:
         finally:
             cursor.close()
             conn.close()
+
+    def update_fivetran_ids(
+        self, tenant_id: str, group_id: str, connector_id: str
+    ) -> Optional[dict]:
+        """Store Fivetran group and connector IDs for tenant."""
+        conn = self._get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        try:
+            cursor.execute(
+                """
+                UPDATE tenants 
+                SET fivetran_group_id = %s, 
+                    fivetran_connector_id = %s,
+                    updated_at = %s
+                WHERE tenant_id = %s
+                RETURNING *
+            """,
+                (group_id, connector_id, datetime.utcnow(), tenant_id),
+            )
+
+            tenant = cursor.fetchone()
+            conn.commit()
+
+            return dict(tenant) if tenant else None
+
+        finally:
+            cursor.close()
+            conn.close()

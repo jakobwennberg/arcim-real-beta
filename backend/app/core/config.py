@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     # Fivetran
     fivetran_auth_token: str
 
+    # Frontend
+    frontend_url: str = "http://localhost:3000"
+
     class Config:
         env_file = ".env"
 
