@@ -34,7 +34,7 @@ class FivetranService:
     ) -> dict:
         """
         Creates Fortnox connector with Connect Card.
-        User completes OAuth flow in Connect Card.
+        User completes OAuth flow in Connect Card with pre-configured app credentials.
 
         Schema name format: fortnox_<tenant_short_id>
         This ensures unique schema per tenant in shared Snowflake destination.
@@ -62,7 +62,12 @@ class FivetranService:
                         "redirect_uri": redirect_uri,
                         "hide_setup_guide": False,
                     },
-                    "config": {"schema": schema_name},
+                    "config": {
+                        "schema": schema_name,
+                        "client_id": settings.fortnox_client_id,
+                        "client_secret": settings.fortnox_client_secret,
+                        "scopes": settings.fortnox_scopes,
+                    },
                 },
             )
             response.raise_for_status()

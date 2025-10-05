@@ -9,6 +9,15 @@ export interface Tenant {
   onboarding_state: string;
   created_at: string;
   data_ready: boolean;
+  fivetran_group_id?: string;
+  fivetran_connector_id?: string;
+}
+
+export interface FivetranSetup {
+  group_id: string;
+  connector_id: string;
+  connect_card_uri: string;
+  service: string;
 }
 
 export async function getTenantByClerkId(clerkUserId: string): Promise<Tenant | null> {
@@ -46,6 +55,28 @@ export async function updateOnboardingState(tenantId: string, state: string): Pr
   const response = await fetch(`${API_BASE_URL}/api/tenants/${tenantId}/state?state=${state}`, {
     method: 'PATCH',
   });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return await response.json();
+}
+
+export async function setupFivetran(tenantId: string): Promise<FivetranSetup> {
+  const response = await fetch(`${API_BASE_URL}/api/fivetran/setup/${tenantId}`, {
+    method: 'POST',
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return await response.json();
+}
+
+export async function getFivetranStatus(tenantId: string) {
+  const response = await fetch(`${API_BASE_URL}/api/fivetran/status/${tenantId}`);
   
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);

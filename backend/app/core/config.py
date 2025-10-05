@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     # Fivetran
     fivetran_auth_token: str
 
+    # Fortnox
+    fortnox_client_id: str
+    fortnox_client_secret: str
+    fortnox_scopes: str
+
     # Frontend
     frontend_url: str = "http://localhost:3000"
 
