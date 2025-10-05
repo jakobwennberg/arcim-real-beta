@@ -21,11 +21,56 @@ class FivetranService:
         One group per tenant allows isolated management.
         """
         async with httpx.AsyncClient() as client:
+            payload = {"name": f"{company_name}_{tenant_id[:8]}"}
+
+            print(f"Creating group with payload: {payload}")
+
             response = await client.post(
-                f"{self.base_url}/groups",
-                headers=self._get_headers(),
-                json={"name": f"{company_name}_{tenant_id[:8]}"},
+                f"{self.base_url}/groups", headers=self._get_headers(), json=payload
             )
+
+            print(f"Response status: {response.status_code}")
+            print(f"Response body: {response.text}")
+
+            response.raise_for_status()
+            return response.json()["data"]
+
+    async def create_snowflake_destination(self, group_id: str, tenant_id: str) -> dict:
+        """
+        Creates Snowflake destination for group.
+        Uses key-pair authentication with tenant-specific role.
+        """
+
+        # Read private key file
+        with open(settings.snowflake_private_key_path, "r") as key_file:
+            private_key_content = key_file.read()
+
+        tenant_role = f"TENANT_{tenant_id.replace('-', '_').upper()}"
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{self.base_url}/destinations",
+                headers=self._get_headers(),
+                json={
+                    "group_id": group_id,
+                    "service": "snowflake",
+                    "time_zone_offset": "+1",
+                    "run_setup_tests": False,
+                    "config": {
+                        "host": f"{settings.snowflake_account}.snowflakecomputing.com",
+                        "port": 443,
+                        "database": settings.snowflake_database,
+                        "auth": "KEY_PAIR",
+                        "user": settings.snowflake_user,
+                        "private_key": private_key_content,
+                        "role": tenant_role,
+                    },
+                },
+            )
+
+            print(f"Destination response status: {response.status_code}")
+            print(f"Destination response body: {response.text}")
+
             response.raise_for_status()
             return response.json()["data"]
 
