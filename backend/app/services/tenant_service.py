@@ -205,3 +205,23 @@ class TenantService:
         finally:
             cursor.close()
             conn.close()
+
+    def get_tenant_by_connector_id(self, connector_id: str) -> Optional[dict]:
+        """Fetch tenant by Fivetran connector ID."""
+        conn = self._get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        try:
+            cursor.execute(
+                """
+                SELECT * FROM tenants WHERE fivetran_connector_id = %s
+            """,
+                (connector_id,),
+            )
+
+            tenant = cursor.fetchone()
+            return dict(tenant) if tenant else None
+
+        finally:
+            cursor.close()
+            conn.close()

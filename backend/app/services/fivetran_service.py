@@ -138,3 +138,27 @@ class FivetranService:
             )
             response.raise_for_status()
             return response.json()["data"]["items"]
+
+    async def create_group_webhook(
+        self, group_id: str, webhook_url: str, secret: str
+    ) -> dict:
+        """
+        Creates webhook for Fivetran group to receive sync notifications.
+        """
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.base_url}/webhooks/group/{group_id}",
+                headers=self._get_headers(),
+                json={
+                    "url": webhook_url,
+                    "events": ["sync_start", "sync_end"],
+                    "active": True,
+                    "secret": secret,
+                },
+            )
+
+            print(f"Webhook response status: {response.status_code}")
+            print(f"Webhook response body: {response.text}")
+
+            response.raise_for_status()
+            return response.json()["data"]

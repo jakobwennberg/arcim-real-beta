@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException
 import traceback
+import secrets
 from app.services.fivetran_service import FivetranService
 from app.services.tenant_service import TenantService
 from app.services.snowflake_service import SnowflakeService
+from app.core.config import settings
 
 router = APIRouter(prefix="/fivetran", tags=["fivetran"])
 fivetran_service = FivetranService()
@@ -66,6 +68,23 @@ async def setup_fivetran_for_tenant(tenant_id: str):
 
         connector_id = connector["id"]
         connect_card_uri = connector["connect_card"]["uri"]
+
+        print(f"Connector created successfully: {connector_id}")
+
+        # Create webhook for sync notifications
+        webhook_secret = secrets.token_urlsafe(32)
+        webhook_url = f"{settings.frontend_url.replace('3000', '8000')}/api/webhooks/fivetran/sync-status"
+
+        print(f"Creating webhook for group {group_id}")
+        print(f"Webhook URL: {webhook_url}")
+
+        webhook = await fivetran_service.create_group_webhook(
+            group_id=group_id, webhook_url=webhook_url, secret=webhook_secret
+        )
+        print(f"Webhook created: {webhook['id']}")
+    except Exception as webhook_error:
+        print(f"WARNING: Webhook creation failed: {webhook_error}")
+        print("Continuing without webhook - sync status updates will not be automatic")
 
         # Store Fivetran IDs in tenant record
         tenant_service.update_fivetran_ids(tenant_id, group_id, connector_id)
