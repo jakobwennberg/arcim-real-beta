@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import tenants, webhooks, fivetran, fivetran_webhooks
+from app.api.routes import tenants, webhooks, fivetran, fivetran_webhooks, tink, metrics
 
 app = FastAPI(title="Arcims API", version="1.0.0")
 
@@ -18,6 +18,8 @@ app.include_router(tenants.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
 app.include_router(fivetran.router, prefix="/api")
 app.include_router(fivetran_webhooks.router, prefix="/api")
+app.include_router(tink.router, prefix="/api")
+app.include_router(metrics.router, prefix="/api")
 
 
 @app.get("/")

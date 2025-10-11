@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     fortnox_client_secret: str
     fortnox_scopes: str
 
+    # Tink
+    tink_client_id: str
+    tink_client_secret: str
+
     # Frontend
     frontend_url: str = "http://localhost:3000"
 
